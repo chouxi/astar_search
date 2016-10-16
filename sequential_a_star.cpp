@@ -31,6 +31,8 @@ sequential_a_star::sequential_a_star(vector<vector<map_str>>& origin_map, vector
 
 sequential_a_star::~sequential_a_star()
 {
+	for(auto vec: seq_astar_vec)
+		delete vec.hn;
 }
 
 void sequential_a_star::initial(vector<vector<map_str>>& origin_map) {
@@ -125,7 +127,6 @@ void sequential_a_star::output_path(int index, vector<pair<int, int>>& path, pai
 	while (tmp != start) {
 		path.push_back(tmp);
 		tmp = seq_astar_map_vec[tmp.first][tmp.second].parent[index];
-		cout << tmp.first << "," << tmp.second << endl;
 	}
 	path.push_back(start);
 	reverse(path.begin(), path.end());
