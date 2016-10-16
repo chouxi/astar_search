@@ -20,6 +20,8 @@ public:
 	~min_heap();
 	void push_heap(ElemType ele);
 	ElemType pop_heap();
+	//get min_key but not pop it.
+	ElemType top();
 	int find_heap(ElemType ele);
 	void remove_heap(ElemType ele);
 	void print_heap();
@@ -52,6 +54,14 @@ ElemType min_heap<ElemType, Find, Compare>::pop_heap() {
 	if (heap_vec.size() >= STARTIND + 1)
 		percolate_down(STARTIND, heap_vec[STARTIND]);
 	return min;
+}
+
+template<class ElemType, class Find, class Compare>
+inline ElemType min_heap<ElemType, Find, Compare>::top()
+{
+	if (heap_vec.size() <= 1)
+		return ElemType{};
+	return heap_vec[STARTIND];
 }
 
 template <class ElemType, class Find, class Compare>

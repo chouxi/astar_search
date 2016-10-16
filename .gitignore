@@ -301,3 +301,5 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+VS1.vcxproj.filters
+VS1.vcxproj

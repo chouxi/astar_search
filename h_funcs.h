@@ -1,6 +1,7 @@
 #ifndef _H_FUNCS_H_
 #define _H_FUNCS_H_
 #include <algorithm>
+#define HEURISTIC_NUMBER 5
 #pragma once
 using namespace std;
 class h_funcs {

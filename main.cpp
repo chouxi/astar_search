@@ -6,6 +6,7 @@
 #include "in_map.h"
 #include "out_astar.h"
 #include "cell_info.h"
+#include "sequential_a_star.h"
 #include <ctime>
 #include "sys/timeb.h"
 #define MAP_NUM 5
@@ -131,10 +132,11 @@ int main(int argc, char *argv[])
 			cout << "1. Create new map" << endl;
 			cout << "2. Read map from file" << endl;
 			cout << "3. Execute A* (WA* etc)" << endl;
-			cout << "4. Save result in file" << endl;
+			cout << "4. Save path in file" << endl;
 			cout << "5. Save map in file" << endl;
 			cout << "6. Info of cells" << endl;
-			cout << "7. Exit" << endl;
+			cout << "7. Execute Squential A*" << endl;
+			cout << "8. Exit" << endl;
 			cout << "Enter your choice:";
 			int choice;
 			scanf_s("%d", &choice);
@@ -188,7 +190,19 @@ int main(int argc, char *argv[])
 				delete ci;
 				break;
 			}
-			case 7:
+			case 7: {
+				float weight1;
+				float weight2;
+				cout << "Input weight 1:" << endl;
+				scanf_s("%f", &weight1);
+				cout << "Input weight 2:" << endl;
+				scanf_s("%f", &weight2);
+				sequential_a_star *seq_star = new sequential_a_star(a1->origin_map, a1->start_goal, a1->path, a1->route_cost, weight1, weight2);
+				delete seq_star;
+				a1->did_astar = true;
+				break;
+			}
+			case 8:
 				exit(0);
 			default:
 				break;

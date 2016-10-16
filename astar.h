@@ -1,6 +1,5 @@
 #ifndef _A_STAR_H_
 #define _A_STAR_H_
-#include <set>
 #include "Assignment1.h"
 #include "heuritic.h"
 #include "uniform_heuristic.h"
@@ -20,13 +19,6 @@ public:
 	~astar();
 	int get_closed_size();
 private:
-	/*typedef struct _cmp_ {
-		bool operator()(const fringe_str a, const fringe_str b) {
-			return a.g_h < b.g_h;
-		}
-	}cmp;
-	set<fringe_str, cmp> fringe;
-	set<fringe_str>::iterator find_fringe(pair<int, int> s);*/
 	typedef struct _cmp_{
 		bool operator()(const fringe_str a, const fringe_str b) {
 			return a.g_h < b.g_h;
