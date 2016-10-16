@@ -108,6 +108,8 @@ void sequential_a_star::expand_state(vector<vector<map_str>>& origin, pair<int, 
 					open_node ins;
 					ins.g_h = key({ i,j }, goal, index);
 					ins.s = { i,j };
+					if(seq_astar_vec[index].open_list.find_heap(ins) >= 0)
+						seq_astar_vec[index].open_list.remove_heap(ins);
 					seq_astar_vec[index].open_list.push_heap(ins);
 				}
 			}
