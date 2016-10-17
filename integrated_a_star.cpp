@@ -13,13 +13,14 @@ integrated_a_star::integrated_a_star(vector<vector<map_str>>& origin_map, vector
 	this->w_1 = weight_1;
 	this->w_2 = weight_2;
 	initial(origin_map);
-	cout << "initial succeed" << endl;
+	cout << "init su" << endl;
 	int index = 0;
 	if (go_astar(origin_map, start_goal[0], start_goal[1])) {
 		output_path(origin_map, path, start_goal[0], start_goal[1]);
 		route_cost = origin_map[start_goal[1].first][start_goal[1].second].gn;
-		for (int i = 0; i < path.size(); i++)
-			cout << path[i].first << "," << path[i].second << endl;
+		cout << route_cost << endl;
+		/*for (int i = 0; i < path.size(); i++)
+			cout << path[i].first << "," << path[i].second << endl;*/
 	}
 	else {
 		cout << "no path found" << endl;
@@ -60,23 +61,23 @@ bool integrated_a_star::go_astar(vector<vector<map_str>>& origin, pair<int, int>
 	}
 	while (!(intg_astar_vec[0].open_list.is_empty())) {
 		for (int i = 1; i < HEURISTIC_NUMBER; i++) {
-			if (!(intg_astar_vec[0].open_list.is_empty()) && !(intg_astar_vec[i].open_list.is_empty())) {
-				if (intg_astar_vec[i].open_list.top().g_h <= w_2 * intg_astar_vec[0].open_list.top().g_h) {
+			if (!(intg_astar_vec[0].open_list.is_empty())) {
+				if ( !(intg_astar_vec[i].open_list.is_empty()) && intg_astar_vec[i].open_list.top().g_h <= w_2 * intg_astar_vec[0].open_list.top().g_h) {
 					if (origin[goal.first][goal.second].gn <= intg_astar_vec[i].open_list.top().g_h)
 						return true;
 					else {
-						open_node tmp = intg_astar_vec[i].open_list.pop_heap();
-						expand_state(origin, tmp.s, goal);
-						close_list[1].insert(tmp.s);
+						open_node tmp_1 = intg_astar_vec[i].open_list.pop_heap();
+						expand_state(origin, tmp_1.s, goal);
+						close_list[1].insert(tmp_1.s);
 					}
 				}
 				else {
 					if (origin[goal.first][goal.second].gn <= intg_astar_vec[0].open_list.top().g_h)
 						return true;
 					else {
-						open_node tmp = intg_astar_vec[0].open_list.pop_heap();
-						expand_state(origin, tmp.s, goal);
-						close_list[0].insert(tmp.s);
+						open_node tmp_0 = intg_astar_vec[0].open_list.pop_heap();
+						expand_state(origin, tmp_0.s, goal);
+						close_list[0].insert(tmp_0.s);
 					}
 				}
 			}
@@ -89,8 +90,10 @@ void integrated_a_star::expand_state(vector<vector<map_str>>& origin, pair<int, 
 {
 	open_node tmp;
 	tmp.s = s;
-	for(int i = 0;i < HEURISTIC_NUMBER; i ++)
-		intg_astar_vec[i].open_list.remove_heap(tmp);
+	for (int i = 0; i < HEURISTIC_NUMBER; i++) {
+		if (intg_astar_vec[i].open_list.find_heap(tmp) >= 0)
+			intg_astar_vec[i].open_list.remove_heap(tmp);
+	}
 	for (int i = s.first - 1; i <= s.first + 1 && i < origin.size(); i++) {
 		for (int j = s.second - 1; j <= s.second + 1 && j < origin[0].size(); j++) {
 			if (i < 0) continue;
@@ -187,4 +190,13 @@ float integrated_a_star::move_cost(vector<vector<map_str>>& origin, pair<int, in
 float integrated_a_star::key(vector<vector<map_str>>& origin, pair<int, int> a, pair<int, int> goal, int index)
 {
 	return origin[a.first][a.second].gn + intg_astar_vec[index].hn->heuristic_func(a, goal);
+}
+int integrated_a_star::get_closed_size() {
+	set <pair<int, int>> close_list_res;
+	for (int i = 0; i < 2; i++) {
+		for (auto it = close_list[i].begin(); it != close_list[i].end(); it++) {
+			close_list_res.insert(*it);
+		}
+	}
+	return close_list_res.size();
 }

@@ -14,8 +14,9 @@
 #define S_G_NUM 10
 int main(int argc, char *argv[])
 {
-	cout << "0:test" << endl;
-	cout << "1:run" << endl;
+	cout << "0:test phase1" << endl;
+	cout << "1:test phase2" << endl;
+	cout << "2:run" << endl;
 	cout << "Please input your choice:";
 	int ru;
 	scanf_s("%d", &ru);
@@ -126,6 +127,187 @@ int main(int argc, char *argv[])
 		break;
 	}
 	case 1: {
+		typedef struct _log_info_ {
+			float _time;
+			int _length;
+			float _cost;
+			int _expand;
+//			float _mem_cost;
+		}log_info;
+		float weight_1[4] = { 0, 1, 1.25, 2};
+		vector<h_funcs *> hf;
+		vector<vector<vector<log_info>>> storage_1(4,vector<vector<log_info>>(5, vector<log_info>(50)));
+		hf.push_back(new Manhattan_dis());
+		hf.push_back(new Manhattan_dis_high());
+		hf.push_back(new Euclidean_dis());
+		hf.push_back(new Diagonal_dis());
+		hf.push_back(new Diagonal_dis_high());
+		vector<string> hf_str;
+		hf_str.push_back("Manhatton_dis");
+		hf_str.push_back("Manhatton_dis_high");
+		hf_str.push_back("Euclidean_dis");
+		hf_str.push_back("Diagonal_dis");
+		hf_str.push_back("Diagonal_dis_high");
+		float weight_2[2] = { 1.25, 2 };
+		vector<vector<vector<vector<log_info>>>> storage_2(2, vector<vector<vector<log_info>>>(2,vector<vector<log_info>>(2, vector<log_info>(50))));
+		for (int i = 0; i < MAP_NUM; i++) {
+			stringstream ss;
+			ss << "./maps/map_" << i << ".txt";
+			string map_file = ss.str(); 
+			Assignment1 *a1 = new Assignment1(120, 160, map_file, "./result.txt");
+			ai_map *m = new ai_map(a1->row, a1->col, a1->origin_map, a1->start_goal, a1->hard_center, S_G_NUM);
+			out_map * out = new out_map(a1->origin_map, a1->start_goal, a1->hard_center, a1->map_file, a1->row, a1->col);
+			delete out;
+			cout << "======================================" << endl;
+			cout << "map" << i << endl;
+			for (int j = 0; j < S_G_NUM * 2; j += 2) {
+				cout << "result" << j << endl;
+				vector<pair<int, int>> tmp;
+				tmp.push_back(a1->start_goal[j]);
+				tmp.push_back(a1->start_goal[j + 1]);
+				//phase 1
+				for (int w = 0; w < 4; w++) {
+					cout << "weight:\t" << weight_1[w] << endl;
+					for (int h = 0; h < hf.size(); h++) {
+//						MEMORYSTATUSEX ms_1;
+//						ms_1.dwLength = sizeof(ms_1);
+//						DWORDLONG mem_start, mem_end;
+						struct timeb start_t, end_t;
+//						GlobalMemoryStatusEx(&ms_1);
+//						mem_start = ms_1.ullAvailPhys;
+						ftime(&start_t);
+						astar *start = new astar(a1->origin_map, tmp, a1->path, a1->route_cost, weight_1[w], hf[h]);
+						ftime(&end_t);
+//						GlobalMemoryStatusEx(&ms_1);
+//						mem_end = ms_1.ullAvailPhys;
+						int expand = start->get_closed_size();
+						delete start;
+						cout << "function:\t" << hf_str[h] << endl;
+						cout << "cost:\t" << a1->route_cost << endl;
+						cout << "length:\t" << a1->path.size() << endl;
+						cout << "runtime:\t" << (end_t.time - start_t.time)* 1000 + (end_t.millitm - start_t.millitm) << "ms" << endl;
+//						cout << "mem_cost:\t" << (mem_start - mem_end) << endl;
+						cout << "------" << endl;
+						log_info tmp;
+						tmp._time = (end_t.time - start_t.time) * 1000 + (end_t.millitm - start_t.millitm);
+						tmp._cost = a1->route_cost;
+						tmp._length = a1->path.size();
+						tmp._expand = expand;
+//						tmp._mem_cost = (float)(mem_start - mem_end)/(float)1024;
+						storage_1[w][h][i*MAP_NUM + j] = tmp;
+					}
+					cout << "=======" << endl;
+				}
+				//phase 2
+				for (int w1 = 0; w1 < 2; w1++) {
+					cout << "weight1:\t" << weight_2[w1];
+					for (int w2 = 0; w2 < 2; w2++) {
+						cout << "weight2:\t" << weight_2[w2] <<endl;
+//						MEMORYSTATUSEX ms_1;
+//						ms_1.dwLength = sizeof(ms_1);
+//						DWORDLONG mem_start, mem_end;
+						struct timeb start_t, end_t;
+//						GlobalMemoryStatusEx(&ms_1);
+//						mem_start = ms_1.ullAvailPhys;
+						ftime(&start_t);
+						sequential_a_star *seq_star = new sequential_a_star(a1->origin_map, tmp, a1->path, a1->route_cost, weight_2[w1], weight_2[w2]);
+						ftime(&end_t);
+//						GlobalMemoryStatusEx(&ms_1);
+//						mem_end = ms_1.ullAvailPhys;
+						int expand = seq_star->get_closed_size();
+						delete seq_star;
+						log_info tmp_info;
+						tmp_info._time = (end_t.time - start_t.time) * 1000 + (end_t.millitm - start_t.millitm);
+						tmp_info._cost = a1->route_cost;
+						tmp_info._length = a1->path.size();
+						tmp_info._expand = expand;
+//						tmp_info._mem_cost = (float)(mem_start - mem_end)/(float)1024;
+						cout << "cost:\t" << tmp_info._cost << endl;
+						cout << "length:\t" << tmp_info._length << endl;
+						cout << "runtime:\t" << tmp_info._time << "ms" << endl;
+						cout << "------" << endl;
+						storage_2[0][w1][w2][i*MAP_NUM + j] = tmp_info;
+
+//						GlobalMemoryStatusEx(&ms_1);
+//						mem_start = ms_1.ullAvailPhys;
+						ftime(&start_t);
+						integrated_a_star *intg_star = new integrated_a_star(a1->origin_map, tmp, a1->path, a1->route_cost, weight_2[w1], weight_2[w2]);
+						ftime(&end_t);
+//						GlobalMemoryStatusEx(&ms_1);
+//						mem_end = ms_1.ullAvailPhys;
+						expand = intg_star->get_closed_size();
+						delete intg_star;
+						tmp_info._time = (end_t.time - start_t.time) * 1000 + (end_t.millitm - start_t.millitm);
+						tmp_info._cost = a1->route_cost;
+						tmp_info._length = a1->path.size();
+						tmp_info._expand = expand;
+//						tmp_info._mem_cost = (float)(mem_start - mem_end)/(float)1024;
+						cout << "cost:\t" << tmp_info._cost << endl;
+						cout << "length:\t" << tmp_info._length << endl;
+						cout << "runtime:\t" << tmp_info._time << "ms" << endl;
+						storage_2[1][w1][w2][i*MAP_NUM + j] = tmp_info;
+					}
+					cout << "=======" << endl;
+				}
+				cout << "-------------------------------------" << endl;
+			}
+			delete m;
+		}
+		ofstream avg_log_2("./avg_log_2.txt");
+		for (int f = 0; f < 2; f++) {
+			for (int i = 0; i < 2; i++) {
+				avg_log_2 << "weight1:" << weight_2[i] << endl;
+				for (int j = 0; j < 2; j++) {
+					avg_log_2 << "weight2:" << weight_2[j] << endl;
+					double _time = 0;
+					double _cost = 0;
+					double _length = 0;
+					double _expand = 0;
+//					DWORDLONG _mem_cost = 0;
+					for (int k = 0; k < 50; k++) {
+						_time += storage_2[f][i][j][k]._time;
+						_cost += storage_2[f][i][j][k]._cost;
+						_length += storage_2[f][i][j][k]._length;
+						_expand += storage_2[f][i][j][k]._expand;
+//						_mem_cost += storage_2[f][i][j][k]._mem_cost;
+					}
+					avg_log_2 << "cost:\t" << (double)(_cost / 50.0) << endl;
+					avg_log_2 << "length:\t" << (double)(_length / 50.0) << endl;
+					avg_log_2 << "runtime:\t" << (double)(_time / 50.0) << "ms" << endl;
+					avg_log_2 << "expand:\t" << (double)(_expand / 50.0) << endl;
+//					avg_log_2 << "mem_cost:\t" << (double)(_mem_cost / 50.0) << endl;
+				}
+			}
+		}
+		avg_log_2.close();
+		ofstream avg_log_1("./avg_log_1.txt");
+		for (int i = 0; i < 4; i++) {
+			avg_log_1 << "weight:" << weight_1[i] << endl;
+			for (int j = 0; j < 5; j++) {
+				avg_log_1 << "heuristic:" << hf_str[j] << endl;
+				double _time = 0;
+				double _cost = 0;
+				double _length = 0;
+				double _expand = 0;
+//				DWORDLONG _mem_cost = 0;
+				for (int k = 0; k < 50; k++) {
+					_time += storage_1[i][j][k]._time;
+					_cost += storage_1[i][j][k]._cost;
+					_length += storage_1[i][j][k]._length;
+					_expand += storage_1[i][j][k]._expand;
+//					_mem_cost += storage_1[i][j][k]._mem_cost;
+				}
+				avg_log_1 <<"cost:\t" << (double)(_cost / 50.0) << endl;
+				avg_log_1 << "length:\t" << (double)(_length / 50.0) << endl;
+				avg_log_1<< "runtime:\t" << (double)(_time / 50.0) << "ms" << endl;
+				avg_log_1 << "expand:\t" << (double)(_expand /50.0) << endl;
+//				avg_log_1 << "mem_cost:\t" << (double)(_mem_cost /50.0) << endl;
+			}
+		}
+		avg_log_1.close();
+		break;
+	}
+	case 2: {
 		Assignment1 *a1 = new Assignment1(120, 160, "./map.txt", "./result.txt");
 		a1->did_astar = false;
 		while (1) {

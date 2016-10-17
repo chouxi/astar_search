@@ -11,6 +11,7 @@ class integrated_a_star
 public:
 	integrated_a_star(vector<vector<map_str>>& origin_map, vector<pair<int, int>> start_goal, vector<pair<int, int>>& path, float& route_cost, float weight_1, float weight_2);
 	~integrated_a_star();
+	int get_closed_size();
 private:
 	typedef struct _open_str_ {
 		pair<int, int> s;

@@ -303,3 +303,4 @@ $RECYCLE.BIN/
 *.lnk
 VS1.vcxproj.filters
 VS1.vcxproj
+*.txt

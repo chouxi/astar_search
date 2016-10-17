@@ -15,13 +15,12 @@ sequential_a_star::sequential_a_star(vector<vector<map_str>>& origin_map, vector
 	this->w_1 = weight_1;
 	this->w_2 = weight_2;
 	initial(origin_map);
-	cout << "initial succeed" << endl;
 	int index = 0;
 	if (go_astar(origin_map, start_goal[0], start_goal[1], index)) {
 		output_path(index, path, start_goal[0], start_goal[1]);
 		route_cost = seq_astar_map_vec[start_goal[1].first][start_goal[1].second].g[index];
-		for (int i = 0; i < path.size(); i++)
-			cout << path[i].first << "," << path[i].second << endl;
+		/*for (int i = 0; i < path.size(); i++)
+			cout << path[i].first << "," << path[i].second << endl;*/
 	}
 	else {
 		cout << "no path found" << endl;
@@ -60,8 +59,8 @@ bool sequential_a_star::go_astar(vector<vector<map_str>>& origin, pair<int, int>
 	}
 	while (!(seq_astar_vec[0].open_list.is_empty())) {
 		for (int i = 1; i < HEURISTIC_NUMBER; i++) {
-			if (!(seq_astar_vec[0].open_list.is_empty()) && !(seq_astar_vec[i].open_list.is_empty())) {
-				if (seq_astar_vec[i].open_list.top().g_h <= w_2 * seq_astar_vec[0].open_list.top().g_h) {
+			if (!(seq_astar_vec[0].open_list.is_empty()) ) {
+				if (!(seq_astar_vec[i].open_list.is_empty()) && seq_astar_vec[i].open_list.top().g_h <= w_2 * seq_astar_vec[0].open_list.top().g_h) {
 					if (seq_astar_map_vec[goal.first][goal.second].g[i] <= seq_astar_vec[i].open_list.top().g_h) {
 						index = i;
 						return true;
@@ -178,4 +177,13 @@ float sequential_a_star::move_cost(vector<vector<map_str>>& origin, pair<int, in
 float sequential_a_star::key(pair<int, int> a, pair<int, int> goal, int index)
 {
 	return seq_astar_map_vec[a.first][a.second].g[index] + seq_astar_vec[index].hn->heuristic_func(a, goal);
+}
+int sequential_a_star::get_closed_size() {
+	set <pair<int, int>> close_list;
+	for (int i = 0; i < seq_astar_vec.size(); i++) {
+		for (auto it = seq_astar_vec[i].close_list.begin(); it != seq_astar_vec[i].close_list.end(); it++) {
+			close_list.insert(*it);
+		}
+	}
+	return close_list.size();
 }
